@@ -6,8 +6,9 @@ import StudentList from "../_components/studentList";
 import { RedirectToSignIn } from "@clerk/nextjs";
 import { Suspense } from "react";
 import StudentsPageLoadingView from "./loadingView";
+import { studentCourses } from "../utils";
 
-export default async function MembersPage() {
+export default async function StudentsPage() {
   const session = await fetchSession();
   if (session.type === "inauthenticated") return <RedirectToSignIn />;
   else if (session.type === "inauthorized") return <InauthorizedPage />;
@@ -16,7 +17,7 @@ export default async function MembersPage() {
     {
       cursor: undefined,
       fullNameSearch: undefined,
-      courses: ["LT1", "LT2", "LT3", "LT4", "LT5", "LT6", "LTn"],
+      courses: studentCourses,
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,

@@ -15,18 +15,7 @@ import { ArrowDownIcon } from "@heroicons/react/16/solid";
 import MemberBox from "./memberBox";
 import { api } from "@/trpc/react";
 import MemberBoxSkeleton from "./memberBoxSkeleton";
-
-type StudentCourseYear = "LT1" | "LT2" | "LT3" | "LT4" | "LT5" | "LT6" | "LTn";
-
-const studentCourses: StudentCourseYear[] = [
-  "LT1",
-  "LT2",
-  "LT3",
-  "LT4",
-  "LT5",
-  "LT6",
-  "LTn",
-];
+import { studentCourses, type StudentCourseYear } from "../utils";
 
 export default function StudentList() {
   const [name, setName] = useState("");
@@ -44,6 +33,11 @@ export default function StudentList() {
       courses: Array.from(courses),
     },
     1500,
+    {
+      equalityFn: (a, b) =>
+        a.name === b.name &&
+        JSON.stringify(a.courses) === JSON.stringify(b.courses),
+    },
   );
 
   const [{ pages }, { error, fetchNextPage, hasNextPage, isFetchingNextPage }] =
