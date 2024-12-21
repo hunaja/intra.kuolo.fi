@@ -6,6 +6,7 @@ import type { MemberClassYear } from "@prisma/client";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// @ts-expect-error it works :D
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
