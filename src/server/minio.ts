@@ -27,7 +27,11 @@ export default async function minio() {
       );
     };
 
-    return { getUploadExamUrl, getDownloadExamUrl };
+    const deleteExamFile = async (filename: string) => {
+      return await client.removeObject(`${bucketPrefix}exams`, filename);
+    };
+
+    return { getUploadExamUrl, getDownloadExamUrl, deleteExamFile };
   }
 
   try {
@@ -76,7 +80,11 @@ export default async function minio() {
       );
     };
 
-    return { getUploadExamUrl, getDownloadExamUrl };
+    const deleteExamFile = async (filename: string) => {
+      return await client.removeObject(`${bucketPrefix}exams`, filename);
+    };
+
+    return { getUploadExamUrl, getDownloadExamUrl, deleteExamFile };
   } catch (e) {
     console.error(e);
     throw e;

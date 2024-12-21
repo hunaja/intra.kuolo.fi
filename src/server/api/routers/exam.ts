@@ -29,10 +29,19 @@ export const examRouter = createTRPCRouter({
   deleteExam: adminProtectedProcedure
     .input(z.string().nonempty())
     .mutation(async ({ input }) => {
-      return await db.exam.delete({
+      const exam = await db.exam.delete({
         where: {
           id: input,
         },
+      });
+
+      if (exam.fileName) {
+        const { deleteExamFile } = await minio();
+        await deleteExamFile(exam.fileName);
+      }
+
+      await db.exam.delete({
+        where: { id: input },
       });
     }),
   approveExam: adminProtectedProcedure
