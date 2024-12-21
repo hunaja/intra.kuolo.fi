@@ -18,10 +18,17 @@ export default function ExamBox({
   const handleExamClick = async () => {
     setDownloading(true);
 
-    const downloadUrl = await getDownloadUrl.mutateAsync({ examId: exam.id });
-    window.open(downloadUrl, "_blank", "noopener,noreferrer");
+    const windowReference = window.open();
 
-    setDownloading(false);
+    getDownloadUrl
+      .mutateAsync({ examId: exam.id })
+      .then((url) => {
+        if (windowReference) windowReference.location = url;
+        setDownloading(false);
+      })
+      .catch((e) => {
+        console.log("Could not get download URL", e);
+      });
   };
 
   return (

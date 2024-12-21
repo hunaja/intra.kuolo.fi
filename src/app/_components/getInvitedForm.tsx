@@ -16,7 +16,12 @@ export default function GetInvitedForm() {
     try {
       await createInvitation.mutateAsync(email);
     } catch (e) {
-      if (
+      if (typeof e === "object" && e && "code" in e && e.code === "NOT_FOUND") {
+        helpers.setFieldError(
+          "email",
+          "Jäsentä ei löytynyt. Tarkista, että käytät Kide.appissa ilmoittamaasi sähköpostiosoitetta.",
+        );
+      } else if (
         typeof e === "object" &&
         e &&
         "code" in e &&
@@ -50,7 +55,14 @@ export default function GetInvitedForm() {
 
   return (
     <Formik initialValues={{ email: "" }} onSubmit={onSubmit}>
-      {({ values, handleChange, handleSubmit, handleBlur, errors }) => (
+      {({
+        values,
+        handleChange,
+        handleSubmit,
+        handleBlur,
+        errors,
+        isSubmitting,
+      }) => (
         <form onSubmit={handleSubmit}>
           <Input
             label="Sähköposti"
@@ -59,12 +71,18 @@ export default function GetInvitedForm() {
             value={values.email}
             onChange={handleChange("email")}
             onBlur={handleBlur("email")}
+            isDisabled={isSubmitting}
           />
           {errors.email && (
             <p className="mt-2 text-sm text-red-500">{errors.email}</p>
           )}
 
-          <Button color="primary" type="submit" className="mt-2 w-full">
+          <Button
+            color="primary"
+            type="submit"
+            className="mt-2 w-full"
+            disabled={isSubmitting}
+          >
             Lähetä kutsu
           </Button>
         </form>
