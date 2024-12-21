@@ -6,14 +6,13 @@ services:
       - "${PORT}:${PORT}"
     environment:
       - PORT=${PORT}
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASWORD}@localhost/${POSTGRES_DATABASE}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DATABASE}?schema=public&connect_timeout=300
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=9000
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      - NEXT_PUBLIC_CLERK_SIGN_IN_REDIRECT=${NEXT_PUBLIC_CLERK_SIGN_IN_REDIRECT}
       - NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
       - NEXT_PUBLIC_CLERK_SIGN_OUT_URL=/sign-out
 
@@ -35,11 +34,11 @@ services:
   database:
     image: postgres
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - database:/var/lib/postgresql/data
     environment:
-      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
