@@ -59,7 +59,7 @@ export default function NavigationBar({
             Tentit
           </Link>
         </NavbarItem>
-        {"admin" in session && session && (
+        {"admin" in session && session.admin && (
           <NavbarItem isActive={selected === "admin"}>
             <Link
               color={selected === "admin" ? "primary" : "foreground"}

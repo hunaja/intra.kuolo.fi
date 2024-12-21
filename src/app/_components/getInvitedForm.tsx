@@ -53,6 +53,7 @@ export default function GetInvitedForm() {
       {({ values, handleChange, handleSubmit, handleBlur }) => (
         <form onSubmit={handleSubmit}>
           <Input
+            label="Sähköposti"
             type="email"
             name="email"
             value={values.email}
