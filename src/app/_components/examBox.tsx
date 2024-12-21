@@ -19,7 +19,7 @@ export default function ExamBox({
     setDownloading(true);
 
     const downloadUrl = await getDownloadUrl.mutateAsync({ examId: exam.id });
-    window.open(downloadUrl, "_blank");
+    window.open(downloadUrl, "_blank", "noopener,noreferrer");
 
     setDownloading(false);
   };
