@@ -50,7 +50,7 @@ export default function GetInvitedForm() {
 
   return (
     <Formik initialValues={{ email: "" }} onSubmit={onSubmit}>
-      {({ values, handleChange, handleSubmit, handleBlur }) => (
+      {({ values, handleChange, handleSubmit, handleBlur, errors }) => (
         <form onSubmit={handleSubmit}>
           <Input
             label="Sähköposti"
@@ -60,7 +60,11 @@ export default function GetInvitedForm() {
             onChange={handleChange("email")}
             onBlur={handleBlur("email")}
           />
-          <Button color="primary" type="submit">
+          {errors.email && (
+            <p className="mt-2 text-sm text-red-500">{errors.email}</p>
+          )}
+
+          <Button color="primary" type="submit" className="mt-2 w-full">
             Lähetä kutsu
           </Button>
         </form>
