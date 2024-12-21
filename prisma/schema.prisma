@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MemberClassYear {
+  LT1
+  LT2
+  LT3
+  LT4
+  LT5
+  LT6
+  LTn
+  alumni
+}
+
+enum CourseClassYear {
+  LT1
+  LT2
+  LT3
+  LT4
+  LT5
+  LT6
+}
+
+model Member {
+  id                  String   @id @default(cuid())
+  fullName            String
+  classYear           MemberClassYear
+  email               String   @unique
+  phone               String?
+  hiddenFromList      Boolean  @default(false)
+  phoneHiddenFromList Boolean  @default(true)
+  admin               Boolean  @default(false)
+
+  addedExams          Exam[]
+}
+
+model Guest {
+  id       String   @id @default(cuid())
+  fullName  String
+  email     String   @unique
+}
+
+model Course {
+  id        String   @id @default(cuid())
+  name      String
+  code      String?
+  classYear CourseClassYear
+  visible   Boolean  @default(false)
+
+  exams     Exam[]
+
+  @@unique([name, classYear])
+}
+
+model Exam {
+  id             String   @id @default(cuid())
+  name           String
+  courseId       String
+  hiddenFromList Boolean  @default(false)
+  year           Int?
+  fileSize       Int
+  fileName       String?
+  fileMimeType   String
+  submitterId    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  course       Course   @relation(fields: [courseId], references: [id])
+  submitter    Member?  @relation(fields: [submitterId], references: [id])
+}
