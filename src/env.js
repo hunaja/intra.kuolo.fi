@@ -11,6 +11,7 @@ export const env = createEnv({
     MINIO_PORT: z.coerce.number().default(9000),
     MINIO_ACCESS_KEY: z.string(),
     MINIO_SECRET_KEY: z.string(),
+    MINIO_USE_SSL: z.coerce.boolean().default(false),
     CLERK_SECRET_KEY: z.string(),
   },
 
@@ -25,6 +26,7 @@ export const env = createEnv({
     MINIO_PORT: process.env.MINIO_PORT,
     MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY,
     MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY,
+    MINIO_USE_SSL: process.env.MINIO_USE_SSL,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,

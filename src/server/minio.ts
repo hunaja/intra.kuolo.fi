@@ -38,7 +38,7 @@ export default async function minio() {
     const client = new Minio.Client({
       endPoint: env.MINIO_ENDPOINT,
       port: env.MINIO_PORT,
-      useSSL: false,
+      useSSL: env.MINIO_USE_SSL,
       accessKey: env.MINIO_ACCESS_KEY,
       secretKey: env.MINIO_SECRET_KEY,
     });
