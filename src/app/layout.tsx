@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "../styles/globals.css";
 import { Providers } from "./providers";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { headers as nextHeaders } from "next/headers";
-import InauthenticatedPage from "./_components/inauthenticated";
 
 const roboto = Roboto({ subsets: ["latin"], weight: ["400"] });
 
