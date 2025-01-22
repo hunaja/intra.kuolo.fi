@@ -6,7 +6,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { fiFI } from "@clerk/localizations";
 import { ThemeProvider } from "next-themes";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 declare module "@react-types/shared" {
   interface RouterConfig {

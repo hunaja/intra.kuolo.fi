@@ -24,6 +24,14 @@ export default function NavigationBar({
   const loggedIn =
     session && (session.type === "member" || session.type === "guest");
 
+  const userCourseYear =
+    session &&
+    session.type === "member" &&
+    session.classYear !== "alumni" &&
+    session.classYear !== "LTn"
+      ? session.classYear
+      : "LT1";
+
   return (
     <Navbar shouldHideOnScroll className="mb-5">
       <NavbarContent>
@@ -46,7 +54,7 @@ export default function NavigationBar({
             <NavbarItem isActive={selected === "wiki"}>
               <Link
                 color={selected === "wiki" ? "primary" : "foreground"}
-                href="/"
+                href="/wiki"
               >
                 Wiki
               </Link>
@@ -62,7 +70,7 @@ export default function NavigationBar({
             <NavbarItem isActive={selected === "exams"}>
               <Link
                 color={selected === "exams" ? "primary" : "foreground"}
-                href="/exams"
+                href={`/exams/${userCourseYear}`}
               >
                 Tentit
               </Link>
@@ -103,7 +111,7 @@ export default function NavigationBar({
             <NavbarMenuItem isActive={selected === "exams"} className="p-2">
               <Link
                 color={selected === "exams" ? "primary" : "foreground"}
-                href="/exams"
+                href={`/exams/${userCourseYear}`}
                 size="lg"
                 className="w-full"
               >

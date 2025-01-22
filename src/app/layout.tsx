@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import { Providers } from "./providers";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { headers as nextHeaders } from "next/headers";
+import InauthenticatedPage from "./_components/inauthenticated";
 
 const roboto = Roboto({ subsets: ["latin"], weight: ["400"] });
 
@@ -23,10 +24,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className={`${roboto.className} h-full`}>
-        <Providers cookieHeader={cookieHeader}>
-          <SignedOut>{children}</SignedOut>
-          <SignedIn>{children}</SignedIn>
-        </Providers>
+        <Providers cookieHeader={cookieHeader}>{children}</Providers>
       </body>
     </html>
   );

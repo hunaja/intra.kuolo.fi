@@ -1,35 +1,16 @@
 import NavigationBar from "./_components/navigation";
-import fetchSession from "../fetchSession";
-import InauthenticatedPage from "./_components/inauthenticated";
-import InauthorizedPage from "./_components/inauthorized";
-import WikiNavigation from "./_components/wikiNavigation";
+import IndexButtons from "./_components/indexButtons";
 
 export default async function Home() {
-  const session = await fetchSession();
-  if (session.type === "inauthenticated") {
-    return <InauthenticatedPage />;
-  } else if (session.type === "inauthorized") {
-    return <InauthorizedPage />;
-  }
-
   return (
     <>
-      <NavigationBar selected="wiki" session={session} />
+      <NavigationBar />
 
-      <main className="block min-h-full flex-1 flex-row justify-between sm:flex">
-        <aside className="hidden w-96 flex-col justify-center sm:block">
-          <div className="top-0 w-full">
-            <WikiNavigation />
-          </div>
-        </aside>
-
-        <section className="my-6 w-full p-5">
-          <h1 className="mb-4 text-3xl">Yleistä</h1>
-          <p>
-            Tervetuloa KuoLO ry:n wikiin! Täältä löydät tietoa yhdistyksestä,
-            sen toiminnasta ja muusta hyödyllisestä.
-          </p>
-        </section>
+      <main className="block min-h-full flex-1 flex-row justify-between sm:flex sm:px-10">
+        <div className="align-center flex w-full flex-1 flex-col place-items-center justify-center sm:w-96">
+          <h1 className={`mb-10 text-center text-3xl`}>Jäsensivut</h1>
+          <IndexButtons />
+        </div>
       </main>
     </>
   );
