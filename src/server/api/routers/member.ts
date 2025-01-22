@@ -34,7 +34,7 @@ export const memberRouter = createTRPCRouter({
       if (!member) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "User not found",
+          message: "Member not found",
         });
       }
 

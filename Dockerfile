@@ -31,6 +31,7 @@ COPY --from=builder --chown=node:node /usr/src/app/node_modules/@prisma/client .
 COPY --from=builder --chown=node:node /usr/src/app/public ./public
 COPY --from=builder --chown=node:node /usr/src/app/.next/standalone ./
 COPY --from=builder --chown=node:node /usr/src/app/.next/static ./.next/static
+# TODO: Copy the migrations too https://notiz.dev/blog/prisma-migrate-deploy-with-docker
 COPY --from=builder --chown=node:node /usr/src/app/prisma/schema.prisma ./prisma/schema.prisma
 
 USER node

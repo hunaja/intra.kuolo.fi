@@ -10,17 +10,20 @@ import {
 import { Link } from "@nextui-org/link";
 
 import Image from "next/image";
-import { Avatar } from "@nextui-org/avatar";
-import { initials } from "../utils";
-import type { GuestSession, MemberSession } from "@/fetchSession";
+import type { Session } from "@/fetchSession";
+import ThemeSwitcher from "./themeSwitcher";
+import UserDropdown from "./userDropdown";
 
 export default function NavigationBar({
   selected,
   session,
 }: {
-  selected: "user" | "students" | "videos" | "exams" | "admin";
-  session: MemberSession | GuestSession;
+  selected?: "wiki" | "students" | "videos" | "exams" | "admin";
+  session?: Session;
 }) {
+  const loggedIn =
+    session && (session.type === "member" || session.type === "guest");
+
   return (
     <Navbar shouldHideOnScroll className="mb-5">
       <NavbarContent>
@@ -37,92 +40,101 @@ export default function NavigationBar({
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden gap-4 sm:flex" justify="center">
-        <NavbarItem isActive={selected === "user"}>
-          <Link color={selected === "user" ? "primary" : "foreground"} href="/">
-            Profiili
-          </Link>
-        </NavbarItem>
-        <NavbarItem isActive={selected === "students"}>
-          <Link
-            color={selected === "students" ? "primary" : "foreground"}
-            href="/students"
-          >
-            Opiskelijat
-          </Link>
-        </NavbarItem>
-        <NavbarItem isActive={selected === "exams"}>
-          <Link
-            color={selected === "exams" ? "primary" : "foreground"}
-            href="/exams"
-          >
-            Tentit
-          </Link>
-        </NavbarItem>
-        {"admin" in session && session.admin && (
-          <NavbarItem isActive={selected === "admin"}>
-            <Link
-              color={selected === "admin" ? "primary" : "foreground"}
-              href="/admin"
-            >
-              Ylläpito
-            </Link>
-          </NavbarItem>
-        )}
-      </NavbarContent>
+      {loggedIn && (
+        <>
+          <NavbarContent className="hidden gap-4 sm:flex" justify="center">
+            <NavbarItem isActive={selected === "wiki"}>
+              <Link
+                color={selected === "wiki" ? "primary" : "foreground"}
+                href="/"
+              >
+                Wiki
+              </Link>
+            </NavbarItem>
+            <NavbarItem isActive={selected === "students"}>
+              <Link
+                color={selected === "students" ? "primary" : "foreground"}
+                href="/students"
+              >
+                Opiskelijat
+              </Link>
+            </NavbarItem>
+            <NavbarItem isActive={selected === "exams"}>
+              <Link
+                color={selected === "exams" ? "primary" : "foreground"}
+                href="/exams"
+              >
+                Tentit
+              </Link>
+            </NavbarItem>
+            {session.type === "member" && session.admin && (
+              <NavbarItem isActive={selected === "admin"}>
+                <Link
+                  color={selected === "admin" ? "primary" : "foreground"}
+                  href="/admin"
+                >
+                  Ylläpito
+                </Link>
+              </NavbarItem>
+            )}
+          </NavbarContent>
 
-      <NavbarMenu>
-        <NavbarMenuItem isActive={selected === "user"} className="p-2">
-          <Link
-            color={selected === "user" ? "primary" : "foreground"}
-            href="/"
-            size="lg"
-            className="w-full"
-          >
-            Profiili
-          </Link>
-        </NavbarMenuItem>
-        <NavbarMenuItem isActive={selected === "students"} className="p-2">
-          <Link
-            color={selected === "students" ? "primary" : "foreground"}
-            href="/students"
-            size="lg"
-            className="w-full"
-          >
-            Opiskelijat
-          </Link>
-        </NavbarMenuItem>
-        <NavbarMenuItem isActive={selected === "exams"} className="p-2">
-          <Link
-            color={selected === "exams" ? "primary" : "foreground"}
-            href="/exams"
-            size="lg"
-            className="w-full"
-          >
-            Tentit
-          </Link>
-        </NavbarMenuItem>
-        {"admin" in session && session.admin && (
-          <NavbarMenuItem isActive={selected === "admin"} className="p-2">
-            <Link
-              color={selected === "admin" ? "primary" : "foreground"}
-              href="/admin"
-              size="lg"
-              className="w-full"
-            >
-              Ylläpito
-            </Link>
-          </NavbarMenuItem>
-        )}
-      </NavbarMenu>
+          <NavbarMenu>
+            <NavbarMenuItem isActive={selected === "wiki"} className="p-2">
+              <Link
+                color={selected === "wiki" ? "primary" : "foreground"}
+                href="/"
+                size="lg"
+                className="w-full"
+              >
+                Wiki
+              </Link>
+            </NavbarMenuItem>
+            <NavbarMenuItem isActive={selected === "students"} className="p-2">
+              <Link
+                color={selected === "students" ? "primary" : "foreground"}
+                href="/students"
+                size="lg"
+                className="w-full"
+              >
+                Opiskelijat
+              </Link>
+            </NavbarMenuItem>
+            <NavbarMenuItem isActive={selected === "exams"} className="p-2">
+              <Link
+                color={selected === "exams" ? "primary" : "foreground"}
+                href="/exams"
+                size="lg"
+                className="w-full"
+              >
+                Tentit
+              </Link>
+            </NavbarMenuItem>
+            {session.type === "member" && session.admin && (
+              <NavbarMenuItem isActive={selected === "admin"} className="p-2">
+                <Link
+                  color={selected === "admin" ? "primary" : "foreground"}
+                  href="/admin"
+                  size="lg"
+                  className="w-full"
+                >
+                  Ylläpito
+                </Link>
+              </NavbarMenuItem>
+            )}
+          </NavbarMenu>
+        </>
+      )}
 
       <NavbarContent className="gap-4" justify="end">
         <NavbarItem>
-          <Avatar size="sm" name={initials(session.fullName)} />
+          <ThemeSwitcher />
         </NavbarItem>
-        <NavbarItem className="hidden text-sm sm:block">
-          {session.fullName}
-        </NavbarItem>
+        {session && session.type !== "inauthenticated" && (
+          <NavbarItem>
+            <UserDropdown session={session} />
+          </NavbarItem>
+        )}
       </NavbarContent>
     </Navbar>
   );

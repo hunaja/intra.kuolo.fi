@@ -102,7 +102,11 @@ export default function ExamsPageLoadingView({
                 <Skeleton className="rounded-lg">VERHE</Skeleton>
               </div>
             }
-            subtitle={<Skeleton className="rounded-lg">10 tenttiä</Skeleton>}
+            subtitle={
+              <Skeleton className="inline-block rounded-lg">
+                10 tenttiä
+              </Skeleton>
+            }
             isDisabled={true}
           >
             a

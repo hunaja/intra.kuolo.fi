@@ -7,31 +7,33 @@ export const bucketPrefix = "rg-";
 
 const PRESIGNED_URL_EXPIRATION = 24 * 60 * 60;
 
+const clientActions = (client: Minio.Client) => ({
+  getUploadExamUrl: async (filename: string) => {
+    return await client.presignedPutObject(
+      `${bucketPrefix}exams`,
+      filename,
+      PRESIGNED_URL_EXPIRATION,
+    );
+  },
+  getDownloadExamUrl: async (filename: string) => {
+    return await client.presignedGetObject(
+      `${bucketPrefix}exams`,
+      filename,
+      PRESIGNED_URL_EXPIRATION,
+      {
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    );
+  },
+  deleteExamFile: async (filename: string) => {
+    return await client.removeObject(`${bucketPrefix}exams`, filename);
+  },
+});
+
 export default async function minio() {
   if (cachedClient) {
-    const client = cachedClient;
-
-    const getUploadExamUrl = async (filename: string) => {
-      return await client.presignedPutObject(
-        `${bucketPrefix}exams`,
-        filename,
-        PRESIGNED_URL_EXPIRATION,
-      );
-    };
-
-    const getDownloadExamUrl = async (filename: string) => {
-      return await client.presignedGetObject(
-        `${bucketPrefix}exams`,
-        filename,
-        PRESIGNED_URL_EXPIRATION,
-      );
-    };
-
-    const deleteExamFile = async (filename: string) => {
-      return await client.removeObject(`${bucketPrefix}exams`, filename);
-    };
-
-    return { getUploadExamUrl, getDownloadExamUrl, deleteExamFile };
+    return clientActions(cachedClient);
   }
 
   try {
@@ -64,27 +66,7 @@ export default async function minio() {
 
     cachedClient = client;
 
-    const getUploadExamUrl = async (filename: string) => {
-      return await client.presignedPutObject(
-        `${bucketPrefix}exams`,
-        filename,
-        PRESIGNED_URL_EXPIRATION,
-      );
-    };
-
-    const getDownloadExamUrl = async (filename: string) => {
-      return await client.presignedGetObject(
-        `${bucketPrefix}exams`,
-        filename,
-        PRESIGNED_URL_EXPIRATION,
-      );
-    };
-
-    const deleteExamFile = async (filename: string) => {
-      return await client.removeObject(`${bucketPrefix}exams`, filename);
-    };
-
-    return { getUploadExamUrl, getDownloadExamUrl, deleteExamFile };
+    return clientActions(client);
   } catch (e) {
     console.error(e);
     throw e;

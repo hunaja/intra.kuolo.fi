@@ -6,6 +6,11 @@ import { ExamList } from "../_components/examList";
 import { Suspense } from "react";
 import { Spinner } from "@nextui-org/react";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Ylläpito | KuoLO Ry",
+};
 
 export default async function AdminPage() {
   const session = await fetchSession();

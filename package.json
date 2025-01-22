@@ -23,6 +23,7 @@
   "dependencies": {
     "@clerk/localizations": "^3.9.2",
     "@clerk/nextjs": "^6.9.2",
+    "@clerk/themes": "^2.2.3",
     "@heroicons/react": "^2.2.0",
     "@nextui-org/react": "^2.6.8",
     "@prisma/client": "^5.14.0",
@@ -39,6 +40,7 @@
     "mime-types": "^2.1.35",
     "minio": "^8.0.2",
     "next": "^15.0.1",
+    "next-themes": "^0.4.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-error-boundary": "^4.1.2",

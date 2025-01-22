@@ -60,6 +60,8 @@ export default function CreateCourseForm({
               className="mt-2"
               isRequired={true}
               isDisabled={isSubmitting}
+              labelPlacement="outside"
+              disallowEmptySelection={true}
               selectedKeys={new Set([values.classYear])}
               onSelectionChange={async (e) => {
                 const courseId = Array.from(e)[0];
@@ -81,14 +83,17 @@ export default function CreateCourseForm({
               label="Nimi"
               isRequired={true}
               placeholder="Esim. Hermosto"
+              labelPlacement="outside"
               onChange={handleChange("name")}
               value={values.name}
+              className="pt-2"
               isDisabled={isSubmitting}
             />
             <Input
               label="Koodi"
-              className="mt-2"
+              className="pt-2"
               placeholder="Esim. HERMO"
+              labelPlacement="outside"
               isDisabled={isSubmitting}
               value={values.code}
               onValueChange={handleChange("code")}

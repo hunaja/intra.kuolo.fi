@@ -8,8 +8,8 @@ import { headers as nextHeaders } from "next/headers";
 const roboto = Roboto({ subsets: ["latin"], weight: ["400"] });
 
 export const metadata: Metadata = {
-  title: "Osoiteluettelo",
-  description: "KuoLO Ry:n osoiteluettelo",
+  title: "KuoLO Ry",
+  description: "KuoLO Ry:n jäsensivut",
 };
 
 export default async function RootLayout({
@@ -21,7 +21,7 @@ export default async function RootLayout({
   const cookieHeader = headers.get("cookie");
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body className={`${roboto.className} h-full`}>
         <Providers cookieHeader={cookieHeader}>
           <SignedOut>{children}</SignedOut>

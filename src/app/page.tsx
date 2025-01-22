@@ -1,12 +1,8 @@
 import NavigationBar from "./_components/navigation";
-import SignOutModal from "./_components/signOutModal";
 import fetchSession from "../fetchSession";
 import InauthenticatedPage from "./_components/inauthenticated";
 import InauthorizedPage from "./_components/inauthorized";
-import { api, HydrateClient } from "@/trpc/server";
-import SelfMemberDetails from "./_components/selfMemberDetails";
-import { Suspense } from "react";
-import MemberLoadingView from "@/loadingView";
+import WikiNavigation from "./_components/wikiNavigation";
 
 export default async function Home() {
   const session = await fetchSession();
@@ -16,35 +12,25 @@ export default async function Home() {
     return <InauthorizedPage />;
   }
 
-  if (session.type === "member") {
-    void api.member.getSelf.prefetch();
-  }
-
   return (
-    <HydrateClient>
-      <NavigationBar selected="user" session={session} />
+    <>
+      <NavigationBar selected="wiki" session={session} />
 
-      <main className="block min-h-full flex-1 flex-row justify-between sm:flex sm:px-10">
-        <div className="align-center flex w-full flex-1 flex-col place-items-center justify-center sm:w-96">
-          <h1
-            className={`${session.type === "guest" ? "mb-5" : "mb-10"} text-center text-3xl`}
-          >
-            {session.type === "guest"
-              ? `Tervetuloa ${session.fullName}!`
-              : `Profiili`}
-          </h1>
+      <main className="block min-h-full flex-1 flex-row justify-between sm:flex">
+        <aside className="hidden w-96 flex-col justify-center sm:block">
+          <div className="top-0 w-full">
+            <WikiNavigation />
+          </div>
+        </aside>
 
-          {session.type === "member" && (
-            <div className="place-items-center">
-              <Suspense fallback={<MemberLoadingView />}>
-                <SelfMemberDetails />
-              </Suspense>
-            </div>
-          )}
-
-          <SignOutModal />
-        </div>
+        <section className="my-6 w-full p-5">
+          <h1 className="mb-4 text-3xl">Yleistä</h1>
+          <p>
+            Tervetuloa KuoLO ry:n wikiin! Täältä löydät tietoa yhdistyksestä,
+            sen toiminnasta ja muusta hyödyllisestä.
+          </p>
+        </section>
       </main>
-    </HydrateClient>
+    </>
   );
 }

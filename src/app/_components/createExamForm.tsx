@@ -70,6 +70,8 @@ export default function CreateExamForm({
 
     await utils.course.invalidate();
 
+    setSubmitState("idle");
+
     close();
   };
 
@@ -87,13 +89,22 @@ export default function CreateExamForm({
       // @ts-expect-error to be fixed
       validate={withZodSchema(
         z.object({
-          name: z.string().nonempty("Nimen on oltava vähintään yksi merkki."),
-          year: z.string(),
-          courseId: z.string(),
-          file: z.object({
-            name: z.string(),
-            size: z.number(),
+          name: z.string().nonempty("Kuvaus on annettava."),
+          year: z.string().optional(),
+          courseId: z.string({
+            required_error: "Kurssi on annettava.",
           }),
+          file: z.object(
+            {
+              name: z.string(),
+              // Max file size is 100 MB
+              size: z.number().max(100 * 1024 * 1024),
+            },
+            {
+              invalid_type_error: "Tenttimateriaali on annettava.",
+              required_error: "Tenttimateriaali on annettava.",
+            },
+          ),
         }),
       )}
     >
@@ -110,17 +121,21 @@ export default function CreateExamForm({
           <ModalBody>
             <Input
               label="Vuosikurssi"
+              labelPlacement="outside"
               isRequired={true}
               value={formatClassName(classYear)}
               isDisabled={true}
             />
             <Select
               label="Kurssi"
-              className="mt-2"
+              className="pt-2"
               isRequired={true}
+              placeholder={`Esim. ${courses[0]?.name}`}
+              labelPlacement="outside"
               selectionMode="single"
+              disallowEmptySelection={true}
               selectedKeys={
-                values.courseId ? new Set([values.courseId]) : undefined
+                values.courseId ? new Set([values.courseId]) : new Set([])
               }
               disabledKeys={
                 isSubmitting ? new Set(courses.map((c) => c.id)) : undefined
@@ -132,6 +147,8 @@ export default function CreateExamForm({
               value={values.courseId ?? undefined}
               description="Ota yhteyttä itvastaava@kuolo.fi, jos et löydä kurssia valikosta."
               onBlur={handleBlur("courseId")}
+              errorMessage={errors.courseId}
+              isInvalid={!!errors.courseId}
             >
               {courses.map((course) => (
                 <SelectItem key={course.id} textValue={course.name}>
@@ -139,51 +156,48 @@ export default function CreateExamForm({
                 </SelectItem>
               ))}
             </Select>
-            {errors.courseId && (
-              <div className="text-sm text-danger">
-                Vuosikurssi: {errors.courseId}
-              </div>
-            )}
             <Input
               label="Kuvaus"
               placeholder="Esim. lopputentti tai preppi"
-              isRequired={true}
-              className="mt-2"
+              className="pt-2"
+              labelPlacement="outside"
               value={values.name}
               onValueChange={handleChange("name")}
               onBlur={handleBlur("name")}
+              isInvalid={!!errors.name}
+              errorMessage={errors.name}
+              isRequired={true}
               isDisabled={isSubmitting}
             />
-            {errors.year && (
-              <div className="text-sm text-danger">Kuvaus: {errors.name}</div>
-            )}
             <Input
               label="Vuosi"
               placeholder="Jätä tyhjäksi jos yleinen materiaali, esim. tenttipreppi"
               type="number"
-              className="mt-2"
+              labelPlacement="outside"
+              className="pt-2"
               value={values.year}
               onValueChange={handleChange("year")}
               onBlur={handleBlur("year")}
               isDisabled={isSubmitting}
+              isInvalid={!!errors.year}
+              errorMessage={errors.year}
             />
-            {errors.year && (
-              <div className="text-sm text-danger">Vuosi: {errors.year}</div>
-            )}
 
+            <p className={`pt-2 text-sm ${errors.file ? "text-danger" : ""}`}>
+              Tenttimateriaali<span className="ml-1 text-danger">*</span>
+            </p>
             <Button
               as="label"
               htmlFor="file"
               variant="bordered"
-              className="mt-2 text-sm"
+              color={errors.file ? "danger" : undefined}
+              className="text-sm"
               onBlur={handleBlur("file")}
               isDisabled={isSubmitting}
             >
               <div className="flex w-full flex-row justify-between">
-                <div className="mr-2 text-gray-500">
-                  Valitse tenttimateriaali
-                </div>
-                <div>{values.file ? values.file.name : "Ei valittu"}</div>
+                <div className="mr-2 text-gray-500">Valitse...</div>
+                <div>{values.file ? values.file.name : ""}</div>
               </div>
             </Button>
             <input
@@ -193,7 +207,7 @@ export default function CreateExamForm({
               className="hidden"
             />
             {errors.file && (
-              <div className="text-sm text-danger">Tiedosto: {errors.file}</div>
+              <div className="text-sm text-danger">{errors.file}</div>
             )}
           </ModalBody>
           <ModalFooter>
@@ -203,10 +217,7 @@ export default function CreateExamForm({
             <Button
               color="primary"
               type="submit"
-              isLoading={
-                submitState === "submittingExam" ||
-                submitState === "submittingFile"
-              }
+              isLoading={submitState !== "idle"}
               isDisabled={isSubmitting}
             >
               {submitState === "submittingExam" && "Lähetään..."}

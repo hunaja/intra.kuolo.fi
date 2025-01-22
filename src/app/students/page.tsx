@@ -7,6 +7,11 @@ import { RedirectToSignIn } from "@clerk/nextjs";
 import { Suspense } from "react";
 import StudentsPageLoadingView from "./loadingView";
 import { studentCourses } from "../utils";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Opiskelijat | KuoLO Ry",
+};
 
 export default async function StudentsPage() {
   const session = await fetchSession();

@@ -24,34 +24,22 @@ import { api } from "@/trpc/react";
 import type { CourseClassYear } from "@prisma/client";
 import ExamBox from "./examBox";
 import { formatClassName } from "../utils";
-import { useDebounce } from "use-debounce";
 import type { GuestSession, MemberSession } from "@/fetchSession";
 
 type Tab = "createCourse" | "createExam";
 
 export function CourseList({
-  initialCourseYear,
+  courseYear,
   session,
 }: {
-  initialCourseYear: CourseClassYear;
+  courseYear: CourseClassYear;
   session: GuestSession | MemberSession;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [selectedKeys, setSelectedKeys] = useState<Set<CourseClassYear>>(
-    new Set([initialCourseYear]),
-  );
   const [selectedTab, setSelectedTab] = useState("createExam");
 
-  const selectedYear = React.useMemo<CourseClassYear>(
-    () =>
-      Array.from(selectedKeys).join(", ").replace(/_/g, "") as CourseClassYear,
-    [selectedKeys],
-  );
-
-  const [debouncedYear] = useDebounce<CourseClassYear>(selectedYear, 500);
-
   const [courses] =
-    api.course.getCoursesForClassYear.useSuspenseQuery(debouncedYear);
+    api.course.getCoursesForClassYear.useSuspenseQuery(courseYear);
 
   return (
     <>
@@ -62,23 +50,32 @@ export function CourseList({
               color="primary"
               startContent={<AcademicCapIcon width={15} />}
             >
-              {formatClassName(selectedYear)}
+              {formatClassName(courseYear)}
             </Button>
           </DropdownTrigger>
           <DropdownMenu
-            selectedKeys={selectedKeys}
-            // @ts-expect-error to be fixed
-            onSelectionChange={setSelectedKeys}
-            closeOnSelect={true}
+            selectedKeys={new Set([courseYear])}
             aria-label="Valitse vuosikurssi"
             selectionMode="single"
           >
-            <DropdownItem key="LT1">1. vsk</DropdownItem>
-            <DropdownItem key="LT2">2. vsk</DropdownItem>
-            <DropdownItem key="LT3">3. vsk</DropdownItem>
-            <DropdownItem key="LT4">4. vsk</DropdownItem>
-            <DropdownItem key="LT5">5. vsk</DropdownItem>
-            <DropdownItem key="LT6">6. vsk</DropdownItem>
+            <DropdownItem key="LT1" href="/exams/LT1">
+              1. vsk
+            </DropdownItem>
+            <DropdownItem key="LT2" href="/exams/LT2">
+              2. vsk
+            </DropdownItem>
+            <DropdownItem key="LT3" href="/exams/LT3">
+              3. vsk
+            </DropdownItem>
+            <DropdownItem key="LT4" href="/exams/LT4">
+              4. vsk
+            </DropdownItem>
+            <DropdownItem key="LT5" href="/exams/LT5">
+              5. vsk
+            </DropdownItem>
+            <DropdownItem key="LT6" href="/exams/LT6">
+              6. vsk
+            </DropdownItem>
           </DropdownMenu>
         </Dropdown>
 
@@ -108,7 +105,7 @@ export function CourseList({
                       <Tab key="createExam" title="Lähetä tenttimateriaalia">
                         {courses ? (
                           <CreateExamForm
-                            classYear={selectedYear}
+                            classYear={courseYear}
                             courses={courses}
                             close={close}
                           />
@@ -119,11 +116,11 @@ export function CourseList({
                       <Tab
                         key="createCourse"
                         title="Lisää kurssi"
-                        isDisabled={session.admin}
+                        isDisabled={!session.admin}
                       >
                         <CreateCourseForm
                           close={close}
-                          initialClassYear={selectedYear}
+                          initialClassYear={courseYear}
                         />
                       </Tab>
                     </Tabs>
