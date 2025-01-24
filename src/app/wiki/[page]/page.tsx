@@ -1,8 +1,3 @@
-
-
-
 export default function WikiPage() {
-  return (
-    
-  )
+  return <p>Tähän tulee jotain</p>;
 }
