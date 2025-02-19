@@ -1,12 +1,12 @@
 import fetchSession from "@/fetchSession";
-import { RedirectToSignIn } from "@clerk/nextjs";
-import InauthorizedPage from "../_components/inauthorized";
 import { api, HydrateClient } from "@/trpc/server";
-import NavigationBar from "../_components/navigation";
 import { Suspense } from "react";
 import ProfileLoadingView from "./loadingView";
-import SelfMemberDetails from "../_components/selfMemberDetails";
 import type { Metadata } from "next";
+import NavigationBar from "@/components/navigation/navigation";
+import InauthorizedPage from "@/components/inauthorized";
+import SelfMemberDetails from "@/components/members/selfDetails";
+import { redirect, RedirectType } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Profiili | KuoLO Ry",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function ProfilePage() {
   const session = await fetchSession();
   if (session.type === "inauthenticated") {
-    return <RedirectToSignIn />;
+    return redirect("/", RedirectType.replace);
   } else if (session.type !== "member") {
     return <InauthorizedPage />;
   }

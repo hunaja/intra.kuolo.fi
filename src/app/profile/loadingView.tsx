@@ -1,8 +1,8 @@
 "use client";
 
-import MemberBoxSkeleton from "../_components/memberBoxSkeleton";
-import PhoneVisibilitySwitch from "../_components/memberPhoneVisibilitySwitch";
-import VisibilitySwitch from "../_components/memberVisibilitySwitch";
+import PhoneVisibilitySwitch from "@/components/members/phoneSwitch";
+import VisibilitySwitch from "@/components/members/visibilitySwitch";
+import MemberBoxSkeleton from "@/components/students/boxSkeleton";
 
 export default function ProfileLoadingView() {
   return (

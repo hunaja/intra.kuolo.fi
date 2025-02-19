@@ -38,6 +38,7 @@ model Member {
   phoneHiddenFromList Boolean  @default(true)
   admin               Boolean  @default(false)
 
+  invitation          MemberInvitation?
   addedExams          Exam[]
 }
 
@@ -73,5 +74,24 @@ model Exam {
   updatedAt      DateTime @updatedAt
 
   course       Course   @relation(fields: [courseId], references: [id])
-  submitter    Member?  @relation(fields: [submitterId], references: [id])
+  submitter    Member?  @relation(fields: [submitterId], references: [id], onDelete: SetNull)
+}
+
+ 
+model Account {
+  email      String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MemberInvitation {
+  id        String   @id @default(cuid())
+  memberId  String  @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  member    Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, token])
 }

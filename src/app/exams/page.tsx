@@ -1,12 +1,14 @@
+import InauthorizedPage from "@/components/inauthorized";
 import fetchSession from "@/fetchSession";
-import { RedirectToSignIn } from "@clerk/nextjs";
-import InauthorizedPage from "../_components/inauthorized";
 import { redirect, RedirectType } from "next/navigation";
 
 export default async function ExamsPage() {
   const session = await fetchSession();
-  if (session.type === "inauthenticated") return <RedirectToSignIn />;
-  else if (session.type === "inauthorized") return <InauthorizedPage />;
+  if (session.type === "inauthenticated") {
+    return redirect("/", RedirectType.replace);
+  } else if (session.type === "inauthorized" || session.type === "guest") {
+    return <InauthorizedPage />;
+  }
 
   const userCourseYear =
     session.type === "member" &&

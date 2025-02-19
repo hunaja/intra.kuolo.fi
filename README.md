@@ -6,8 +6,6 @@ KuoLO Ry:n jäsensivut koodattuna uudelleen _Next.js + tRPC + Prisma (PostgreSQL
 
 - Integraatiotestit
 
-- Alumnijäsenten lisääminen
-
 ## Käyttäminen
 
 1. Kloonaa repositorio palvelimelle: `git clone https://github.com/hunaja/intra.kuolo.fi`
@@ -27,17 +25,17 @@ Tenttiarkisto sisältää kursseja, jotka sisältävät tentit. Tähän reposito
 npm npx prisma/seed.ts
 ```
 
-### Perusjäsenien ja alumnijäsenien lisääminen
+### Opiskelijoiden ja alumnijäsenien lisääminen
 
-Jotta jäsensivuja voisi käyttää saumattomasti, on jäsenet lisättävä tietokantaan. Olen havainnut, että selkein tapa tehdä tämä on ottamalla kide.appin antama tiedosto kaikista jäsentiedoista, muuntamalla tämä tiedosto `.csv`-tiedostoksi ja laittamalla nimeksi `registry.csv` ja siirtämällä tämä tiedosto project rootiin (samaan kansioon, missä tämä README-tiedosto on).
+Opiskelijat ja alumnijäsenet lisätään ylläpitonäkymässä.
 
-Tämän jälkeen voit suorittaa seuraavan komennon, jolloin tietokannassa oleva jäsenrekisteri päivittyy:
+### Vierailijakäyttäjät
 
-```bash
-npx tsx scripts/importMembers.ts
-```
+**Yhteistyökumppanien (ja esim. Dentinan) tilit on luotava tällä tavalla.**
 
-_Alumnijäsenten lisääminen ja helpompi työkalu jäsenten tuomiseen tietokantaan on tulossa._
+Oletuksena vain tietokannassa olevat (KuoLO:n) jäsenet voivat katsella jäsensivuja. Tähän poikkeuksena ovat vierailijakäyttäjät.
+
+Vierailukäyttäjiä voi hallita ylläpitonäkemässä.
 
 ### Ylläpitokäyttäjän lisääminen
 
@@ -52,17 +50,3 @@ Vastaavasti käyttäjän ylläpito-oikeudet voi evätä seuraavalla komennolla:
 ```bash
 npx tsx scripts/setAdmin.ts admin@student.uef.fi false
 ```
-
-### Uuden vierailijakäyttäjän luonti
-
-Oletuksena vain tietokannassa olevat (KuoLO:n) jäsenet voivat katsella jäsensivuja. Tähän poikkeuksena ovat vierailijakäyttäjät.
-
-Vierailijakäyttäjät ovat käyttäjiä, joilla on oikeus katsella sivustoja mutta ei esimerkiksi lähettää uutta materiaalia tentttiarkistoon.
-
-Luo Clerkissä käyttäjä, esimerkiksi sähköpostilla `hampaat+noreply@kuolo.fi`. Tämän jälkeen voit kutsua vierailijakäyttäjän luontiin tarkoitettua skriptiä seuraavasti:
-
-```bash
-npx tsx scripts/addGuest.ts hampaat+noreply@kuolo.fi Hampaat Dentina
-```
-
-Nyt siis sähköpostiosoitteella `hampaat+noreply@kuolo.fi` luotu käyttäjä voisi katsella jäsensivuja. **Yhteistyökumppanien (ja esim. Dentinan) tilit on luotava tällä tavalla.**

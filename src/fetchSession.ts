@@ -1,6 +1,10 @@
+import "server-only";
+
 import type { Guest, Member } from "@prisma/client";
-import { currentUser } from "@clerk/nextjs/server";
 import { db } from "./server/db";
+import { cookies } from "next/headers";
+import { getIronSession, type IronSession } from "iron-session";
+import { SessionData, sessionOptions } from "./server/auth";
 
 export type MemberSession = {
   type: "member";
@@ -27,20 +31,16 @@ export type Session =
   | InauthorizedSession;
 
 export default async function fetchSession(): Promise<Session> {
-  const clerkUser = await currentUser();
-  if (!clerkUser) {
+  const session = await getIronSession<SessionData>(
+    await cookies(),
+    sessionOptions,
+  );
+
+  const { email, loggedIn } = session;
+
+  if (!loggedIn || !email) {
     return {
       type: "inauthenticated",
-    };
-  }
-
-  const email = clerkUser.emailAddresses.find(
-    (e) => e.verification?.status === "verified",
-  )?.emailAddress;
-
-  if (!email) {
-    return {
-      type: "inauthorized",
     };
   }
 

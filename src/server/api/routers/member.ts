@@ -1,17 +1,14 @@
 import { z } from "zod";
 
 import {
+  adminProtectedProcedure,
   createTRPCRouter,
-  inauthedProcedure,
   memberProtectedProcedure,
   protectedProcedure,
 } from "@/server/api/trpc";
 import type { Prisma } from "@prisma/client";
 import { db } from "@/server/db";
 import { TRPCError } from "@trpc/server";
-import { createClerkClient } from "@clerk/nextjs/server";
-import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
-import { env } from "@/env";
 
 const LIMIT = 10;
 
@@ -23,54 +20,6 @@ export const memberRouter = createTRPCRouter({
       },
     });
   }),
-  createInvitation: inauthedProcedure
-    .input(z.string().email())
-    .mutation(async ({ input }) => {
-      const member = await db.member.findUnique({
-        where: {
-          email: input,
-        },
-      });
-      if (!member) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Member not found",
-        });
-      }
-
-      const clerkClient = createClerkClient({
-        secretKey: env.CLERK_SECRET_KEY,
-      });
-
-      try {
-        const response = await clerkClient.invitations.createInvitation({
-          emailAddress: input,
-        });
-
-        console.log(response);
-      } catch (e) {
-        if (!isClerkAPIResponseError(e)) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Unknown error while creating",
-          });
-        }
-
-        if (e.errors.find((error) => error.code === "form_identifier_exists")) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "Member account already exists",
-          });
-        } else if (
-          e.errors.find((error) => error.code === "duplicate_record")
-        ) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "Invitation already sent",
-          });
-        }
-      }
-    }),
   getStudents: protectedProcedure
     .input(
       z.object({
@@ -180,4 +129,66 @@ export const memberRouter = createTRPCRouter({
       });
     },
   ),
+  replaceStudents: adminProtectedProcedure
+    .input(
+      z.array(
+        z.object({
+          lastName: z.string(),
+          callName: z.string(),
+          email: z.string().email(),
+          classYear: z.enum(["LT1", "LT2", "LT3", "LT4", "LT5", "LT6", "LTn"]),
+          phone: z.string(),
+          disclosedInfo: z.string(),
+        }),
+      ),
+    )
+    .mutation(async ({ input }) => {
+      const loopedUsers = new Set<string>();
+
+      for (const userRecord of input) {
+        const { lastName, callName, email, classYear, phone, disclosedInfo } =
+          userRecord;
+
+        loopedUsers.add(email);
+
+        const hiddenFromList = !disclosedInfo.includes("Nimi");
+        const phoneHiddenFromList = !disclosedInfo.includes("puhelinnumero");
+        const fullName = `${callName} ${lastName}`;
+
+        const data = {
+          fullName,
+          classYear,
+          hiddenFromList,
+          phoneHiddenFromList,
+          phone: `+${phone}`,
+        };
+
+        const userExists = await db.member.findUnique({ where: { email } });
+        if (userExists) {
+          await db.member.update({
+            data,
+            where: {
+              email,
+            },
+          });
+        } else {
+          await db.member.create({
+            data: {
+              ...data,
+              email,
+            },
+          });
+        }
+      }
+
+      await db.member.deleteMany({
+        where: {
+          NOT: {
+            email: {
+              in: [...loopedUsers],
+            },
+          },
+        },
+      });
+    }),
 });

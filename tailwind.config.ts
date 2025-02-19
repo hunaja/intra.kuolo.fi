@@ -4,10 +4,13 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./wiki/**/*.mdx",
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: "class",
   plugins: [
+    require("@tailwindcss/typography"),
     nextui({
       themes: {
         dark: {
@@ -34,7 +37,7 @@ const config: Config = {
               700: "#B73A52",
               800: "#932543",
               900: "#7A163A",
-              DEFAULT: "#FF7577",
+              DEFAULT: "#B73A52",
             },
           },
         },

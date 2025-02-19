@@ -1,14 +1,13 @@
-import { CourseList } from "@/app/_components/courseList";
-import InauthorizedPage from "@/app/_components/inauthorized";
-import NavigationBar from "@/app/_components/navigation";
-import { formatClassName, isStudentCourseYear } from "@/app/utils";
+import { formatClassName, isStudentCourseYear } from "@/utils";
 import fetchSession from "@/fetchSession";
 import { HydrateClient, api } from "@/trpc/server";
-import { RedirectToSignIn } from "@clerk/nextjs";
 import { redirect, RedirectType } from "next/navigation";
 import { Suspense } from "react";
 import ExamsPageLoadingView from "../loadingView";
 import type { Metadata } from "next";
+import InauthorizedPage from "@/components/inauthorized";
+import NavigationBar from "@/components/navigation/navigation";
+import CourseList from "@/components/exams/list";
 
 export async function generateMetadata({
   params,
@@ -36,8 +35,9 @@ export default async function CourseYearExamsPage({
   const { courseYear } = await params;
 
   const session = await fetchSession();
-  if (session.type === "inauthenticated") return <RedirectToSignIn />;
-  else if (session.type === "inauthorized") return <InauthorizedPage />;
+  if (session.type === "inauthenticated") {
+    return redirect("/");
+  } else if (session.type === "inauthorized") return <InauthorizedPage />;
 
   const isValidYear = isStudentCourseYear(courseYear) && courseYear !== "LTn";
   if (!isValidYear) {

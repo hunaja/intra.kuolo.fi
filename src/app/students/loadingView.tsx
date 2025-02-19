@@ -1,8 +1,8 @@
 "use client";
 
+import MemberBoxSkeleton from "@/components/students/boxSkeleton";
 import { FunnelIcon } from "@heroicons/react/16/solid";
 import { Button, Input } from "@nextui-org/react";
-import MemberBoxSkeleton from "../_components/memberBoxSkeleton";
 
 export default function StudentsPageLoadingView() {
   return (

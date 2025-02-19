@@ -12,13 +12,9 @@ export const env = createEnv({
     MINIO_ACCESS_KEY: z.string(),
     MINIO_SECRET_KEY: z.string(),
     MINIO_USE_SSL: z.coerce.boolean().default(false),
-    CLERK_SECRET_KEY: z.string(),
+    SESSION_SECRET: z.string(),
   },
-
-  client: {
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
-  },
-
+  client: {},
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
@@ -27,9 +23,7 @@ export const env = createEnv({
     MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY,
     MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY,
     MINIO_USE_SSL: process.env.MINIO_USE_SSL,
-    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    SESSION_SECRET: process.env.SESSION_SECRET,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
