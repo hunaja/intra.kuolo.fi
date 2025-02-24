@@ -1,6 +1,6 @@
 "use client";
 
-import { WikiPages } from "@/app/wiki/page";
+import { WikiPages } from "@/server/api/wiki";
 import { BookOpenIcon } from "@heroicons/react/16/solid";
 import {
   Button,
