@@ -18,12 +18,12 @@ export const metadata: Metadata = {
 export default async function SignUp({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const session = await fetchSession();
   if (session.type !== "inauthenticated") return redirect("/");
 
-  const token = searchParams?.token;
+  const { token } = await searchParams;
   if (typeof token !== "string") {
     return <p>Kutsukoodi on annettava.</p>;
   }
