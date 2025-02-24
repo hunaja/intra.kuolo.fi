@@ -25,7 +25,8 @@ export default async function SignUp({
 
   const params = await searchParams;
   if (!params?.token) return <p>Kutsukoodi on annettava.</p>;
-  if (typeof params.token !== "string") {
+  const token = params.token;
+  if (typeof token !== "string") {
     return <p>Kutsukoodi on annettava.</p>;
   }
 
