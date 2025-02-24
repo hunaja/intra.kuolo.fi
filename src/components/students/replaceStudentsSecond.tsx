@@ -1,8 +1,5 @@
 import { Button, Select, SelectItem } from "@nextui-org/react";
-import type {
-  SelectedColumns,
-  SelectedColumnsForm,
-} from "./students/replaceAllModal";
+import type { SelectedColumns, SelectedColumnsForm } from "./replaceAllModal";
 import { useState } from "react";
 
 export default function ReplaceStudentsSecond({
