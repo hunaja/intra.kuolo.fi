@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import type { SelectedColumns } from "./students/replaceStudentsModal";
+import type { SelectedColumns } from "./students/replaceAllModal";
 
 export default function ReplaceStudentsThird({
   csvRecords,
