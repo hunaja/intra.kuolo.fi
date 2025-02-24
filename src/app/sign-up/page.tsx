@@ -23,8 +23,9 @@ export default async function SignUp({
   const session = await fetchSession();
   if (session.type !== "inauthenticated") return redirect("/");
 
-  const { token } = await searchParams;
-  if (typeof token !== "string") {
+  const params = await searchParams;
+  if (!params?.token) return <p>Kutsukoodi on annettava.</p>;
+  if (typeof params.token !== "string") {
     return <p>Kutsukoodi on annettava.</p>;
   }
 
