@@ -2,7 +2,7 @@ import { z } from "zod";
 import { db } from "../src/server/db";
 import crypto from "crypto";
 
-const setAdminScript = async (email: string) => {
+const inviteMemberScript = async (email: string) => {
   const member = await db.member.findUnique({
     where: { email },
   });
@@ -27,4 +27,4 @@ const setAdminScript = async (email: string) => {
   console.log(newInvitation);
 };
 
-void setAdminScript(process.argv[2]);
+void inviteMemberScript(process.argv[2]);

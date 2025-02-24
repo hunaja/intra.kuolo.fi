@@ -35,7 +35,10 @@ export default async function CourseYearExamsPage({
   const { courseYear } = await params;
 
   const session = await fetchSession();
-  if (session.type === "inauthenticated") {
+  if (
+    session.type === "inauthenticated" ||
+    (session.type === "guest" && session.advertiser)
+  ) {
     return redirect("/");
   } else if (session.type === "inauthorized") return <InauthorizedPage />;
 

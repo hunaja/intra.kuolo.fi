@@ -54,7 +54,7 @@ export default async function SignInPage() {
     session.email = email;
     await session.save();
 
-    redirect("/wiki");
+    redirect("/");
 
     return {
       error: false,

@@ -15,7 +15,10 @@ export default async function WikiPage({
   const { page } = await params;
 
   const session = await fetchSession();
-  if (session.type === "inauthenticated") {
+  if (
+    session.type === "inauthenticated" ||
+    (session.type === "guest" && session.advertiser)
+  ) {
     return redirect("/", RedirectType.replace);
   } else if (session.type === "inauthorized") {
     return <InauthorizedPage />;

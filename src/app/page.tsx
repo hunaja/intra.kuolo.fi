@@ -12,6 +12,9 @@ export default async function Home({
   const session = await fetchSession();
 
   if (session.type !== "inauthenticated") {
+    if (session.type === "guest" && session.advertiser) {
+      return redirect("/students", RedirectType.replace);
+    }
     return redirect("/wiki", RedirectType.replace);
   }
 

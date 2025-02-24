@@ -32,6 +32,9 @@ export default function NavigationBar({
       ? session.classYear
       : "LT1";
 
+  const notAdvertiser =
+    session && !(session.type === "guest" && session.advertiser);
+
   return (
     <Navbar shouldHideOnScroll className="mb-5">
       <NavbarContent>
@@ -53,22 +56,26 @@ export default function NavigationBar({
       {loggedIn && (
         <>
           <NavbarContent className="hidden gap-4 sm:flex" justify="center">
-            <NavbarItem isActive={selected === "wiki"}>
-              <Link
-                color={selected === "wiki" ? "primary" : "foreground"}
-                href="/wiki"
-              >
-                Wiki
-              </Link>
-            </NavbarItem>
-            <NavbarItem isActive={selected === "ozgars"}>
-              <Link
-                color={selected === "ozgars" ? "primary" : "foreground"}
-                href="/ozgars"
-              >
-                Ozgars
-              </Link>
-            </NavbarItem>
+            {notAdvertiser && (
+              <NavbarItem isActive={selected === "wiki"}>
+                <Link
+                  color={selected === "wiki" ? "primary" : "foreground"}
+                  href="/wiki"
+                >
+                  Wiki
+                </Link>
+              </NavbarItem>
+            )}
+            {notAdvertiser && (
+              <NavbarItem isActive={selected === "ozgars"}>
+                <Link
+                  color={selected === "ozgars" ? "primary" : "foreground"}
+                  href="/ozgars"
+                >
+                  Ozgars
+                </Link>
+              </NavbarItem>
+            )}
             <NavbarItem isActive={selected === "students"}>
               <Link
                 color={selected === "students" ? "primary" : "foreground"}
@@ -77,14 +84,16 @@ export default function NavigationBar({
                 Opiskelijat
               </Link>
             </NavbarItem>
-            <NavbarItem isActive={selected === "exams"}>
-              <Link
-                color={selected === "exams" ? "primary" : "foreground"}
-                href={`/exams/${userCourseYear}`}
-              >
-                Tentit
-              </Link>
-            </NavbarItem>
+            {notAdvertiser && (
+              <NavbarItem isActive={selected === "exams"}>
+                <Link
+                  color={selected === "exams" ? "primary" : "foreground"}
+                  href={`/exams/${userCourseYear}`}
+                >
+                  Tentit
+                </Link>
+              </NavbarItem>
+            )}
             {session.type === "member" && session.admin && (
               <NavbarItem isActive={selected === "admin"}>
                 <Link
@@ -98,24 +107,28 @@ export default function NavigationBar({
           </NavbarContent>
 
           <NavbarMenu>
-            <NavbarMenuItem isActive={selected === "wiki"} className="p-2">
-              <Link
-                color={selected === "wiki" ? "primary" : "foreground"}
-                href="/"
-                size="lg"
-                className="w-full"
-              >
-                Wiki
-              </Link>
-            </NavbarMenuItem>
-            <NavbarItem isActive={selected === "ozgars"}>
-              <Link
-                color={selected === "ozgars" ? "primary" : "foreground"}
-                href="/ozgars"
-              >
-                Ozgars
-              </Link>
-            </NavbarItem>
+            {notAdvertiser && (
+              <NavbarMenuItem isActive={selected === "wiki"} className="p-2">
+                <Link
+                  color={selected === "wiki" ? "primary" : "foreground"}
+                  href="/"
+                  size="lg"
+                  className="w-full"
+                >
+                  Wiki
+                </Link>
+              </NavbarMenuItem>
+            )}
+            {notAdvertiser && (
+              <NavbarItem isActive={selected === "ozgars"} className="p-2">
+                <Link
+                  color={selected === "ozgars" ? "primary" : "foreground"}
+                  href="/ozgars"
+                >
+                  Ozgars
+                </Link>
+              </NavbarItem>
+            )}
             <NavbarMenuItem isActive={selected === "students"} className="p-2">
               <Link
                 color={selected === "students" ? "primary" : "foreground"}
@@ -126,16 +139,18 @@ export default function NavigationBar({
                 Opiskelijat
               </Link>
             </NavbarMenuItem>
-            <NavbarMenuItem isActive={selected === "exams"} className="p-2">
-              <Link
-                color={selected === "exams" ? "primary" : "foreground"}
-                href={`/exams/${userCourseYear}`}
-                size="lg"
-                className="w-full"
-              >
-                Tentit
-              </Link>
-            </NavbarMenuItem>
+            {notAdvertiser && (
+              <NavbarMenuItem isActive={selected === "exams"} className="p-2">
+                <Link
+                  color={selected === "exams" ? "primary" : "foreground"}
+                  href={`/exams/${userCourseYear}`}
+                  size="lg"
+                  className="w-full"
+                >
+                  Tentit
+                </Link>
+              </NavbarMenuItem>
+            )}
             {session.type === "member" && session.admin && (
               <NavbarMenuItem isActive={selected === "admin"} className="p-2">
                 <Link

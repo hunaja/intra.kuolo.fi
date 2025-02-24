@@ -89,25 +89,6 @@ export default function SignInForm({
         }
       />
 
-      <Input
-        label="Salasana"
-        type="password"
-        name="password"
-        className="w-full"
-        labelPlacement="outside"
-        placeholder=" "
-        isDisabled={pending}
-        isRequired
-        onFocus={() => setPasswordTouched(true)}
-        isInvalid={
-          errorMessage(loginStatus)?.field === "password" && !passwordTouched
-        }
-        errorMessage={
-          errorMessage(loginStatus)?.field === "password" &&
-          errorMessage(loginStatus)?.message
-        }
-      />
-
       <Button
         color="primary"
         type="submit"

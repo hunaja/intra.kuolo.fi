@@ -9,7 +9,10 @@ import { redirect, RedirectType } from "next/navigation";
 
 export default async function WikiIndex() {
   const session = await fetchSession();
-  if (session.type === "inauthenticated") {
+  if (
+    session.type === "inauthenticated" ||
+    (session.type === "guest" && session.advertiser)
+  ) {
     return redirect("/", RedirectType.replace);
   } else if (session.type === "inauthorized") {
     return <InauthorizedPage />;

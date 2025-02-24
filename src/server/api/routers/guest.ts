@@ -19,7 +19,13 @@ export const guestRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input: data }) => {
-      db.guest.create({ data });
+      await db.guest.create({
+        data: {
+          fullName: data.fullName,
+          email: data.email,
+          advertiser: true,
+        },
+      });
 
       const possibleAccount = await db.account.findUnique({
         where: { email: data.email },
