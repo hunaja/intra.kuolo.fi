@@ -1,14 +1,17 @@
 import { z } from "zod";
 
+import crypto from "crypto";
 import {
   adminProtectedProcedure,
   createTRPCRouter,
   memberProtectedProcedure,
+  permissionProtectedProcedure,
   protectedProcedure,
 } from "@/server/api/trpc";
-import type { Prisma } from "@prisma/client";
+import { Permission, type Prisma, type Member } from "@prisma/client";
 import { db } from "@/server/db";
 import { TRPCError } from "@trpc/server";
+import { sendEmail } from "@/server/email";
 
 const LIMIT = 10;
 
@@ -85,6 +88,57 @@ export const memberRouter = createTRPCRouter({
         nextCursor: nextCursor,
       };
     }),
+  getMemberByEmail: adminProtectedProcedure
+    .input(z.string())
+    .query(async ({ input: email }) => {
+      return db.member.findUnique({
+        where: {
+          email,
+        },
+      });
+    }),
+  getPermittedMembers: adminProtectedProcedure.query(async () => {
+    return db.member.findMany({
+      where: {
+        permissions: { isEmpty: false },
+      },
+    });
+  }),
+  togglePermission: adminProtectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        permission: z.enum(["EDIT_EXAMS", "EDIT_MEMBERS", "EDIT_GUESTS"]),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const user = await db.member.findUnique({ where: { id: input.id } });
+
+      if (!user)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Member not found" });
+
+      if (user.permissions.includes(input.permission)) {
+        return db.member.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            permissions: user.permissions.filter((p) => p !== input.permission),
+          },
+        });
+      }
+
+      return db.member.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          permissions: {
+            push: input.permission,
+          },
+        },
+      });
+    }),
   toggleHiddenFromList: memberProtectedProcedure.mutation(async ({ ctx }) => {
     const id = ctx.session.id;
 
@@ -129,7 +183,106 @@ export const memberRouter = createTRPCRouter({
       });
     },
   ),
-  replaceStudents: adminProtectedProcedure
+  replaceAlumnis: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_MEMBERS,
+    })
+    .input(
+      z.array(
+        z.object({
+          lastName: z.string(),
+          firstName: z.string(),
+          email: z.string(),
+        }),
+      ),
+    )
+    .mutation(async ({ input }) => {
+      const loopedAlumnis = new Set<string>();
+
+      for (const alumniRecord of input) {
+        const { lastName, firstName, email } = alumniRecord;
+
+        loopedAlumnis.add(email);
+
+        let member = await db.member.findUnique({
+          where: { email },
+        });
+        if (!member) {
+          member = await db.member.create({
+            data: {
+              fullName: `${firstName} ${lastName}`,
+              email,
+              classYear: "alumni",
+            },
+          });
+        }
+
+        const account = await db.account.findUnique({
+          where: { email },
+        });
+
+        // If there is no account and the user is not invited, the user should be invited.
+        if (!account) {
+          const invitation = await db.memberInvitation.findUnique({
+            where: { memberId: member.id },
+          });
+
+          if (!invitation) {
+            const newInvitation = await db.memberInvitation.create({
+              data: {
+                memberId: member.id,
+                token: crypto.randomBytes(32).toString("hex"),
+              },
+            });
+
+            await sendEmail({
+              to: email,
+              subject: "Kutsu KuoLO Ry:n jäsensivuille",
+              text: `Sinut on kutsuttu luomaan tili KuoLO Ry:n jäsensivuille.\n
+Voit käyttää tätä linkkiä: https://intra.kuolo.fi/sign-up?token=${newInvitation.token}`,
+            });
+          }
+        }
+      }
+
+      const students = await db.member.findMany({
+        where: {
+          NOT: {
+            classYear: "alumni",
+          },
+        },
+      });
+      const studentEmails = students.map((m) => m.email);
+
+      const guests = await db.guest.findMany();
+      const guestEmails = guests.map((g) => g.email);
+
+      // Remove all alumnis that are not in the member registry
+      await db.member.deleteMany({
+        where: {
+          NOT: {
+            email: {
+              in: [...loopedAlumnis, ...studentEmails],
+            },
+          },
+        },
+      });
+
+      // Remove all alumnis that are not in the alumni registry
+      await db.account.deleteMany({
+        where: {
+          NOT: {
+            email: {
+              in: [...loopedAlumnis, ...guestEmails, ...studentEmails],
+            },
+          },
+        },
+      });
+    }),
+  replaceStudents: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_MEMBERS,
+    })
     .input(
       z.array(
         z.object({
@@ -164,28 +317,79 @@ export const memberRouter = createTRPCRouter({
         };
 
         const userExists = await db.member.findUnique({ where: { email } });
+
+        let member: Member;
         if (userExists) {
-          await db.member.update({
+          member = await db.member.update({
             data,
             where: {
               email,
             },
           });
         } else {
-          await db.member.create({
+          member = await db.member.create({
             data: {
               ...data,
               email,
             },
           });
         }
+
+        const account = await db.account.findUnique({
+          where: { email },
+        });
+
+        // If there is no account and the user is not invited, the user should be invited.
+        if (!account) {
+          const invitation = await db.memberInvitation.findUnique({
+            where: { memberId: member.id },
+          });
+
+          if (!invitation) {
+            const newInvitation = await db.memberInvitation.create({
+              data: {
+                memberId: member.id,
+                token: crypto.randomBytes(32).toString("hex"),
+              },
+            });
+
+            await sendEmail({
+              to: email,
+              subject: "Kutsu KuoLO Ry:n jäsensivuille",
+              text: `Sinut on kutsuttu luomaan tili KuoLO Ry:n jäsensivuille.\n
+Voit käyttää tätä linkkiä: https://intra.kuolo.fi/sign-up?token=${newInvitation.token}`,
+            });
+          }
+        }
       }
 
+      const guests = await db.guest.findMany();
+      const guestEmails = guests.map((g) => g.email);
+
+      const alumnis = await db.member.findMany({
+        where: {
+          classYear: "alumni",
+        },
+      });
+      const alumniEmails = alumnis.map((a) => a.email);
+
+      // Remove all students that are not in the member registry
       await db.member.deleteMany({
         where: {
           NOT: {
             email: {
-              in: [...loopedUsers],
+              in: [...loopedUsers, ...alumniEmails],
+            },
+          },
+        },
+      });
+
+      // Remove all the student accounts (non-guest and non-alumn) that are not in the member registry
+      await db.account.deleteMany({
+        where: {
+          NOT: {
+            email: {
+              in: [...loopedUsers, ...guestEmails, ...alumniEmails],
             },
           },
         },

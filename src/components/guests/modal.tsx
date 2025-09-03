@@ -27,6 +27,7 @@ export default function GuestsModal() {
     onSuccess: async () => {
       setEmail("");
       setFullName("");
+      setPassword("");
       await utils.guest.getAll.invalidate();
     },
   });

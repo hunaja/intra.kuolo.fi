@@ -1,14 +1,15 @@
 import { z } from "zod";
 
 import {
-  adminProtectedProcedure,
   createTRPCRouter,
-  protectedProcedure,
+  notAdvertiserProcedure,
+  permissionProtectedProcedure,
 } from "@/server/api/trpc";
 import { db } from "@/server/db";
+import { Permission } from "@prisma/client";
 
 export const courseRouter = createTRPCRouter({
-  getCoursesForClassYear: protectedProcedure
+  getCoursesForClassYear: notAdvertiserProcedure
     .input(z.enum(["LT1", "LT2", "LT3", "LT4", "LT5", "LT6"]))
     .query(async ({ input: classYear }) => {
       return await db.course.findMany({
@@ -26,7 +27,10 @@ export const courseRouter = createTRPCRouter({
         },
       });
     }),
-  createCourse: adminProtectedProcedure
+  createCourse: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_EXAMS,
+    })
     .input(
       z.object({
         name: z.string().max(25),

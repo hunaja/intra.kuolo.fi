@@ -19,6 +19,12 @@ enum MemberClassYear {
   alumni
 }
 
+enum Permission {
+  EDIT_EXAMS
+  EDIT_MEMBERS
+  EDIT_GUESTS
+}
+
 enum CourseClassYear {
   LT1
   LT2
@@ -40,6 +46,7 @@ model Member {
 
   invitation          MemberInvitation?
   addedExams          Exam[]
+  permissions         Permission[]
 }
 
 model Guest {
@@ -80,7 +87,7 @@ model Exam {
 
  
 model Account {
-  email      String   @unique
+  email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -99,19 +106,16 @@ model MemberInvitation {
 
 model OzgarYear {
   id        String   @id @default(cuid())
-  year      Int
+  year      Int      @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   videos    OzgarVideo[]
 }
 
 model OzgarVideo {
-  id        String   @id @default(cuid())
-  title     String
-  yearId    String
-  videoId   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  year      OzgarYear @relation(fields: [yearId], references: [id])
+  id                String   @id @default(cuid())
+  name              String
+  thumbnailLocation String?
+  yearId            String
+  year              OzgarYear @relation(fields: [yearId], references: [id])
 }

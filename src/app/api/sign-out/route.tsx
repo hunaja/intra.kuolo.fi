@@ -1,5 +1,5 @@
 import fetchSession from "@/fetchSession";
-import { SessionData, sessionOptions } from "@/server/auth";
+import { type SessionData, sessionOptions } from "@/server/auth";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";

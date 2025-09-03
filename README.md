@@ -2,6 +2,8 @@
 
 KuoLO Ry:n jäsensivut koodattuna uudelleen _Next.js + tRPC + Prisma (PostgreSQL) + Minio_ stäckillä.
 
+Kuunnelkaa https://soundcloud.com/eliaswest
+
 ## TODO
 
 - Integraatiotestit

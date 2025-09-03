@@ -1,17 +1,10 @@
-/**
- * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
- * 1. You want to modify request context (see Part 1).
- * 2. You want to create a new middleware or type of procedure (see Part 3).
- *
- * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
- * need to use are documented accordingly near the end.
- */
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
 import fetchSession from "@/fetchSession";
+import { Permission } from "@prisma/client";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await fetchSession();
@@ -78,6 +71,21 @@ const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
   });
 });
 
+const enforceUserIsNotAdvertiser = t.middleware(async ({ ctx, next }) => {
+  if (ctx.session.type === "guest" && ctx.session.advertiser) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be a member to access this resource",
+    });
+  }
+
+  return next({
+    ctx: {
+      session: ctx.session,
+    },
+  });
+});
+
 const enforceUserIsMember = t.middleware(async ({ ctx, next }) => {
   if (ctx.session.type !== "member") {
     throw new TRPCError({
@@ -108,6 +116,41 @@ const enforceUserIsAdmin = t.middleware(async ({ ctx, next }) => {
   });
 });
 
+const isPermission = (permission: unknown): permission is Permission => {
+  return (
+    typeof permission === "string" &&
+    Object.values(Permission).includes(permission as Permission)
+  );
+};
+
+const enforceUserHasPermission = t.middleware(async ({ ctx, next, meta }) => {
+  if (ctx.session.type !== "member") {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be a member to access this resource",
+    });
+  }
+
+  if (
+    (!meta ||
+      !("requiredPermission" in meta) ||
+      !isPermission(meta.requiredPermission) ||
+      !ctx.session.permissions.includes(meta.requiredPermission)) &&
+    !ctx.session.admin
+  ) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You do not have permission to access this resource",
+    });
+  }
+
+  return next({
+    ctx: {
+      session: ctx.session,
+    },
+  });
+});
+
 export const publicProcedure = t.procedure;
 
 export const inauthedProcedure = t.procedure.use(enforceUserIsInauthed);
@@ -117,3 +160,11 @@ export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 export const memberProtectedProcedure = t.procedure.use(enforceUserIsMember);
 
 export const adminProtectedProcedure = t.procedure.use(enforceUserIsAdmin);
+
+export const permissionProtectedProcedure = t.procedure
+  .use(enforceUserIsMember)
+  .use(enforceUserHasPermission);
+
+export const notAdvertiserProcedure = t.procedure.use(
+  enforceUserIsNotAdvertiser,
+);

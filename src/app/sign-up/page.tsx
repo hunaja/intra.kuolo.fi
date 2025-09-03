@@ -1,6 +1,6 @@
 import NavigationBar from "@/components/navigation/navigation";
 import StyledSignUp from "@/components/signUp/modal";
-import { SessionData, sessionOptions } from "@/server/auth";
+import { type SessionData, sessionOptions } from "@/server/auth";
 import { db } from "@/server/db";
 import { getIronSession } from "iron-session";
 import type { Metadata } from "next";
@@ -18,14 +18,14 @@ export const metadata: Metadata = {
 export default async function SignUp({
   searchParams,
 }: {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await fetchSession();
   if (session.type !== "inauthenticated") return redirect("/");
 
   const params = await searchParams;
   if (!params?.token) return <p>Kutsukoodi on annettava.</p>;
-  const token = params.token;
+  const { token } = params;
   if (typeof token !== "string") {
     return <p>Kutsukoodi on annettava.</p>;
   }
@@ -83,10 +83,6 @@ export default async function SignUp({
     await session.save();
 
     redirect("/wiki");
-
-    return {
-      error: false,
-    };
   }
 
   return (

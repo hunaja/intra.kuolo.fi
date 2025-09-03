@@ -1,32 +1,40 @@
 import { z } from "zod";
 
 import {
-  adminProtectedProcedure,
   createTRPCRouter,
   memberProtectedProcedure,
-  protectedProcedure,
+  notAdvertiserProcedure,
+  permissionProtectedProcedure,
 } from "@/server/api/trpc";
 import { db } from "@/server/db";
 import mime from "mime-types";
 import minio from "@/server/minio";
 import { TRPCError } from "@trpc/server";
+import { Permission } from "@prisma/client";
 
 export const examRouter = createTRPCRouter({
-  getAllInvisible: adminProtectedProcedure.query(async () => {
-    return await db.exam.findMany({
-      where: {
-        hiddenFromList: true,
-      },
-      include: {
-        course: true,
-        submitter: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-  }),
-  deleteExam: adminProtectedProcedure
+  getAllInvisible: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_EXAMS,
+    })
+    .query(async () => {
+      return await db.exam.findMany({
+        where: {
+          hiddenFromList: true,
+        },
+        include: {
+          course: true,
+          submitter: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }),
+  deleteExam: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_EXAMS,
+    })
     .input(z.string().nonempty())
     .mutation(async ({ input }) => {
       const exam = await db.exam.delete({
@@ -40,7 +48,10 @@ export const examRouter = createTRPCRouter({
         await deleteExamFile(exam.fileName);
       }
     }),
-  approveExam: adminProtectedProcedure
+  approveExam: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_EXAMS,
+    })
     .input(z.string().nonempty())
     .mutation(async ({ input }) => {
       return await db.exam.update({
@@ -120,7 +131,7 @@ export const examRouter = createTRPCRouter({
       const { getUploadExamUrl } = await minio();
       return await getUploadExamUrl(fileName);
     }),
-  getDownloadUrl: protectedProcedure
+  getDownloadUrl: notAdvertiserProcedure
     .input(
       z.object({
         examId: z.string(),

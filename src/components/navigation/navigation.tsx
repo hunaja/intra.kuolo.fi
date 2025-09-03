@@ -94,16 +94,17 @@ export default function NavigationBar({
                 </Link>
               </NavbarItem>
             )}
-            {session.type === "member" && session.admin && (
-              <NavbarItem isActive={selected === "admin"}>
-                <Link
-                  color={selected === "admin" ? "primary" : "foreground"}
-                  href="/admin"
-                >
-                  Ylläpito
-                </Link>
-              </NavbarItem>
-            )}
+            {session.type === "member" &&
+              (session.admin || session.permissions.length) && (
+                <NavbarItem isActive={selected === "admin"}>
+                  <Link
+                    color={selected === "admin" ? "primary" : "foreground"}
+                    href="/admin"
+                  >
+                    Ylläpito
+                  </Link>
+                </NavbarItem>
+              )}
           </NavbarContent>
 
           <NavbarMenu>

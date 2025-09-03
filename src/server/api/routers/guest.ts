@@ -1,16 +1,24 @@
 import { db } from "@/server/db";
-import { adminProtectedProcedure, createTRPCRouter } from "../trpc";
+import { createTRPCRouter, permissionProtectedProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcrypt";
+import { Permission } from "@prisma/client";
 
 const HASH_ROUNDS = 10;
 
 export const guestRouter = createTRPCRouter({
-  getAll: adminProtectedProcedure.query(async () => {
-    return db.guest.findMany();
-  }),
-  createGuest: adminProtectedProcedure
+  getAll: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_GUESTS,
+    })
+    .query(async () => {
+      return db.guest.findMany();
+    }),
+  createGuest: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_GUESTS,
+    })
     .input(
       z.object({
         fullName: z.string(),
@@ -44,7 +52,10 @@ export const guestRouter = createTRPCRouter({
         },
       });
     }),
-  deleteGuest: adminProtectedProcedure
+  deleteGuest: permissionProtectedProcedure
+    .meta({
+      requiredPermission: Permission.EDIT_GUESTS,
+    })
     .input(z.string())
     .mutation(async ({ input: id }) => {
       const guest = await db.guest.delete({

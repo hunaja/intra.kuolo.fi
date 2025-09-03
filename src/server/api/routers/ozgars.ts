@@ -1,11 +1,59 @@
 import { db } from "@/server/db";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import {
+  adminProtectedProcedure,
+  createTRPCRouter,
+  notAdvertiserProcedure,
+} from "../trpc";
 import { z } from "zod";
+import { zfd } from "zod-form-data";
+import sharp from "sharp";
+import minio from "@/server/minio";
 
 const LIMIT = 4;
 
 export const ozgarsRouter = createTRPCRouter({
-  getYears: protectedProcedure
+  uploadVideo: adminProtectedProcedure
+    .input(
+      zfd.formData({
+        year: zfd.numeric(),
+        name: zfd.text(),
+        thumbnail: zfd.file(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const resizedImage = await sharp(await input.thumbnail.arrayBuffer())
+        .resize(200, 300, {
+          fit: sharp.fit.fill,
+          position: sharp.strategy.entropy,
+        })
+        .toFormat("jpeg")
+        .toBuffer();
+
+      let year = await db.ozgarYear.findUnique({ where: { year: input.year } });
+      if (!year) {
+        year = await db.ozgarYear.create({
+          data: {
+            year: input.year,
+          },
+        });
+      }
+
+      const video = await db.ozgarVideo.create({
+        data: {
+          yearId: year.id,
+          name: input.name,
+        },
+      });
+
+      const thumbnailLocation = `${video.id}.jpeg`;
+
+      const { uploadOzgarsThumbnail } = await minio();
+      await uploadOzgarsThumbnail(thumbnailLocation, resizedImage);
+
+      video.thumbnailLocation = thumbnailLocation;
+      return video;
+    }),
+  getYears: notAdvertiserProcedure
     .input(
       z.object({
         cursor: z.number().optional(),
@@ -23,11 +71,6 @@ export const ozgarsRouter = createTRPCRouter({
         orderBy: {
           year: "desc",
         },
-        include: {
-          videos: {
-            take: 1,
-          },
-        },
         take: LIMIT,
       });
       const nextCursor =
@@ -39,6 +82,10 @@ export const ozgarsRouter = createTRPCRouter({
       }
 
       return {
+        years: years.map((year) => ({
+          id: year.id,
+          year: year.year,
+        })),
         nextCursor,
       };
     }),

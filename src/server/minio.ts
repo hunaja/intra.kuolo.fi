@@ -29,6 +29,13 @@ const clientActions = (client: Minio.Client) => ({
   deleteExamFile: async (filename: string) => {
     return await client.removeObject(`${bucketPrefix}exams`, filename);
   },
+  uploadOzgarsThumbnail: async (location: string, buffer: Buffer) => {
+    await client.putObject(
+      `${bucketPrefix}ozgars-thumbnails`,
+      location,
+      buffer,
+    );
+  },
 });
 
 export default async function minio() {
@@ -45,24 +52,33 @@ export default async function minio() {
       secretKey: env.MINIO_SECRET_KEY,
     });
 
-    if (!(await client.bucketExists(bucketPrefix + "exams"))) {
-      await client.makeBucket(bucketPrefix + "exams");
-    }
+    const initializeBucket =
+      (name: string, getObjectAllow: boolean) => async () => {
+        const bucketExists = await client.bucketExists(bucketPrefix + name);
+        if (!bucketExists) {
+          await client.makeBucket(bucketPrefix + name);
+        }
 
-    await client.setBucketPolicy(
-      bucketPrefix + "exams",
-      JSON.stringify({
-        Version: "2012-10-17",
-        Statement: [
-          {
-            Effect: "Allow",
-            Principal: { AWS: ["*"] },
-            Action: ["s3:GetObject"],
-            Resource: [`arn:aws:s3:::${bucketPrefix}exams/*`],
-          },
-        ],
-      }),
-    );
+        await client.setBucketPolicy(
+          name,
+          JSON.stringify({
+            Version: "2012-10-17",
+            Statement: [
+              {
+                Effect: getObjectAllow ? "Allow" : "Deny",
+                Principal: { AWS: ["*"] },
+                Action: ["s3:GetObject"],
+                Resource: [`arn:aws:s3:::${bucketPrefix}${name}/*`],
+              },
+            ],
+          }),
+        );
+      };
+
+    await Promise.all([
+      initializeBucket("exams", true),
+      initializeBucket("ozgars-thumbnails", true),
+    ]);
 
     cachedClient = client;
 

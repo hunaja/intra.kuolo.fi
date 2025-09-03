@@ -6,6 +6,28 @@ import MDXRemoteWrapper from "@/components/wiki/remoteWrapper";
 import MobileNavigation from "@/components/wiki/mobileNavigation";
 import { getWikiPages, serializeWikiPage, wikiSlugs } from "@/server/api/wiki";
 import { redirect, RedirectType } from "next/navigation";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ page: string }>;
+}): Promise<Metadata> {
+  const { page } = await params;
+  const slugs = await wikiSlugs();
+  const slug = `${page}.mdx`;
+  if (!slugs.includes(slug)) {
+    return {
+      title: "404",
+    };
+  }
+
+  const source = await serializeWikiPage(slug);
+
+  return {
+    title: `${source?.frontmatter?.title} | KuoLO Ry`,
+  };
+}
 
 export default async function WikiPage({
   params,
@@ -48,7 +70,7 @@ export default async function WikiPage({
         </div>
         <section className="my-6 w-full p-5">
           {source && (
-            <div className="prose dark:prose-invert w-full">
+            <div className="prose w-full dark:prose-invert">
               <h1>{(source?.frontmatter.title as string) ?? ""}</h1>
               <MDXRemoteWrapper source={source} />
             </div>

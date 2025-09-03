@@ -4,7 +4,7 @@ import type { Guest, Member } from "@prisma/client";
 import { db } from "./server/db";
 import { cookies } from "next/headers";
 import { getIronSession, type IronSession } from "iron-session";
-import { SessionData, sessionOptions } from "./server/auth";
+import { type SessionData, sessionOptions } from "./server/auth";
 
 export type MemberSession = {
   type: "member";

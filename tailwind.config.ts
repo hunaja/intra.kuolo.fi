@@ -1,3 +1,4 @@
+import { heroui } from "@heroui/theme";
 import { nextui } from "@nextui-org/react";
 import type { Config } from "tailwindcss";
 
@@ -7,6 +8,7 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./wiki/**/*.mdx",
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@heroui/theme/dist/components/(number-input|button|ripple|spinner|form).js",
   ],
   darkMode: "class",
   plugins: [
@@ -71,6 +73,7 @@ const config: Config = {
         },
       },
     }),
+    heroui(),
   ],
 };
 export default config;

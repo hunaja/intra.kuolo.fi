@@ -8,6 +8,8 @@ import NavigationBar from "@/components/navigation/navigation";
 import { ExamList } from "@/components/exams/modList";
 import GuestsModal from "@/components/guests/modal";
 import ReplaceStudentsModal from "@/components/students/replaceAllModal";
+import { Permission } from "@prisma/client";
+import PermissionsModal from "@/components/permissions/modal";
 
 export const metadata: Metadata = {
   title: "Ylläpito | KuoLO Ry",
@@ -23,7 +25,9 @@ export default async function AdminPage() {
   )
     return redirect("/");
 
-  void api.exam.getAllInvisible.prefetch();
+  if (session.permissions.includes(Permission.EDIT_EXAMS)) {
+    void api.exam.getAllInvisible.prefetch();
+  }
 
   return (
     <HydrateClient>
@@ -31,15 +35,36 @@ export default async function AdminPage() {
 
       <div className="block flex-1 justify-between p-4 sm:flex sm:p-10">
         <div className="flex-grow">
-          <Suspense fallback={<Spinner className="flex-1" />}>
-            <ExamList />{" "}
-          </Suspense>
+          {(session.permissions.includes(Permission.EDIT_EXAMS) ||
+            session.admin) && (
+            <Suspense fallback={<Spinner className="flex-1" />}>
+              <ExamList />{" "}
+            </Suspense>
+          )}
         </div>
         <div className="ml-0 flex-grow-0 sm:ml-5">
           <h1 className="text-3xl font-bold">Toiminnat</h1>
-          <GuestsModal />
-          <br />
-          <ReplaceStudentsModal />
+
+          {session.admin && (
+            <>
+              <PermissionsModal />
+              <br />
+            </>
+          )}
+          {(session.permissions.includes(Permission.EDIT_GUESTS) ||
+            session.admin) && (
+            <>
+              <GuestsModal />
+              <br />
+            </>
+          )}
+          {(session.permissions.includes(Permission.EDIT_MEMBERS) ||
+            session.admin) && (
+            <>
+              <ReplaceStudentsModal />
+              <br />
+            </>
+          )}
         </div>
       </div>
     </HydrateClient>

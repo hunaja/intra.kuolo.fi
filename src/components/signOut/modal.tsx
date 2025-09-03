@@ -11,7 +11,6 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import StyledSignOutButton from "./button";
-import { api } from "@/trpc/react";
 
 export default function SignOutModal() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

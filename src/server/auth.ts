@@ -1,6 +1,6 @@
 import "server-only";
 import { env } from "@/env";
-import { SessionOptions } from "iron-session";
+import type { SessionOptions } from "iron-session";
 
 export interface SessionData {
   email: string;
