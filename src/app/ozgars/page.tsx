@@ -17,14 +17,10 @@ export default async function OzgarsPage() {
   )
     return redirect("/");
 
-  void api.ozgars.getYears();
-
   return (
     <HydrateClient>
       <NavigationBar selected="ozgars" session={session} />
-      <div className="block p-4 sm:p-10">
-        <OzgarsModal />
-      </div>
+      <div className="block p-4 sm:p-10"></div>
     </HydrateClient>
   );
 }

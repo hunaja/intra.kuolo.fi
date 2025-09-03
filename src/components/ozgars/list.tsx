@@ -1,5 +1,3 @@
 export default function OzgarsList() {
-    return (
-        
-    )
+  return <p>placeholder</p>;
 }
